@@ -1,0 +1,24 @@
+{
+  "name": "slack-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nicochess/slack-bot.git"
+  },
+  "author": "Nicolas Magno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nicochess/slack-bot/issues"
+  },
+  "homepage": "https://github.com/Nicochess/slack-bot#readme",
+  "dependencies": {
+    "@slack/bolt": "^3.9.0",
+    "dotenv": "^14.2.0"
+  }
+}

@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Nicochess/slack-bot#readme",
   "dependencies": {
     "@slack/bolt": "^3.9.0",
+    "asana": "^0.18.6",
     "dotenv": "^14.2.0"
   }
 }

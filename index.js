@@ -14,6 +14,35 @@ const app = new App({
   socketMode: true,
 });
 
+client.events
+  .get("30994714493547")
+  .then((res) => {
+    let syncToken = res.sync;
+    setInterval(() => {
+      client.events.get("30994714493547", syncToken).then((res) => {
+        if (res.data.length > 0 && res.data[0].action == "added") {
+          app.client.chat
+            .postMessage({
+              token: process.env.BOT_TOKEN,
+              channel: "C02UWCUUSF5",
+              text: `
+              Acabou de ser adicionada uma task no pool. <@here>
+              https://app.asana.com/0/30994714493547/list
+              `,
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+
+        const syncBase = res.sync.substring(0, res.sync.indexOf(":") + 1);
+        const updateNum = res.sync.substring(res.sync.indexOf(":") + 1);
+        syncToken = syncBase + updateNum;
+      });
+    }, 10000);
+  })
+  .catch((error) => console.log(error));
+
 app.message("bot", async ({ message, say }) => {
   await say(`Por que está falando de mim, <@${message.user}> ?`);
 });
@@ -30,7 +59,14 @@ app.message("task doing", async ({ say }) => {
     }
 
     let message = "";
-    data.map((task) => (message += `- ${task.name} \n`));
+    data.map(
+      (task) =>
+        (message += `
+    - ${task.name}
+    https://app.asana.com/0/1140999922606648/${task.gid}
+
+    `)
+    );
     say(message);
   } catch (error) {
     console.log(error);
@@ -49,7 +85,14 @@ app.message("task todo", async ({ say }) => {
     }
 
     let message = "";
-    res.data.map((task) => (message += `- ${task.name} \n`));
+    res.data.map(
+      (task) =>
+        (message += `
+    - ${task.name}
+    https://app.asana.com/0/1140999922812186/${task.gid}
+
+    `)
+    );
     say(message);
   } catch (error) {
     console.log(error);

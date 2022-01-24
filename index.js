@@ -15,6 +15,7 @@ const app = new App({
   appToken: process.env.SLACK_TOKEN,
   signingSecret: process.env.SIGNING_SECRET,
   port: process.env.SLACK_PORT || 3000,
+  socketMode: true,
 });
 
 app.message("bot", async ({ message, say }) => {

@@ -12,6 +12,7 @@ const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
 const app = new App({
   token: process.env.BOT_TOKEN,
+  port: process.env.PORT || 3000,
   receiver
 });
 

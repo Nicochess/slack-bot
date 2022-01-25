@@ -12,7 +12,7 @@ const app = new App({
   port: process.env.SLACK_PORT || 3000,
   customRoutes: [
     {
-      path: '/',
+      path: '/webhook',
       method: ['GET'],
       handler: (req, res) => {
         res.writeHead(200)

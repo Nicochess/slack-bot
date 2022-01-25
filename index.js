@@ -1,21 +1,25 @@
 require("dotenv").config();
 
-const { App, ExpressReceiver } = require("@slack/bolt");
+const { App } = require("@slack/bolt");
 
 const { Client } = require("asana");
-
-const receiver = new ExpressReceiver({
-  signingSecret: process.env.ACESS_TOKEN,
-});
 
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
 const app = new App({
   token: process.env.BOT_TOKEN,
-  appToken: process.env.SLACK_TOKEN,
   signingSecret: process.env.SIGNING_SECRET,
   port: process.env.SLACK_PORT || 3000,
-  socketMode: true,
+  customRoutes: [
+    {
+      path: '/',
+      method: ['GET'],
+      handler: (req, res) => {
+        res.writeHead(200)
+        res.end('Funcionou...')
+      }
+    }
+  ]
 });
 
 app.message("bot", async ({ message, say }) => {

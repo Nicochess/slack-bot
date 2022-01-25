@@ -17,7 +17,7 @@ const app = new App({
 });
 
 receiver.router.get('/webhook', (req, res) => {
-  res.send('Olá')
+  res.status(200).send('Olá')
 })
 
 app.message("bot", async ({ message, say }) => {

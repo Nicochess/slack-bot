@@ -1,6 +1,10 @@
 require("dotenv").config();
 
-const { App } = require("@slack/bolt");
+const { App, ExpressReceiver } = require("@slack/bolt");
+
+const receiver = new ExpressReceiver({
+  signingSecret: process.env.SIGNING_SECRET,
+});
 
 const { Client } = require("asana");
 
@@ -8,19 +12,12 @@ const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
 const app = new App({
   token: process.env.BOT_TOKEN,
-  signingSecret: process.env.SIGNING_SECRET,
-  port: process.env.SLACK_PORT || 3000,
-  customRoutes: [
-    {
-      path: '/webhook',
-      method: ['GET'],
-      handler: (req, res) => {
-        res.writeHead(200)
-        res.end('Funcionou...')
-      }
-    }
-  ]
+  receiver
 });
+
+receiver.router.get('/webhook', (req, res) => {
+  res.send('Olá')
+})
 
 app.message("bot", async ({ message, say }) => {
   await say(`Por que está falando de mim, <@${message.user}> ?`);

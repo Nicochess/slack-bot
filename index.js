@@ -2,9 +2,11 @@ require("dotenv").config();
 
 const { App, ExpressReceiver } = require("@slack/bolt");
 
+const express = require('express')
 const receiver = new ExpressReceiver({
   signingSecret: process.env.SIGNING_SECRET,
 });
+receiver.router.use(express.json())
 
 const { Client } = require("asana");
 
@@ -86,6 +88,6 @@ app.message("comandos", async ({ say, message }) => {
 });
 
 (async () => {
-  await app.start();
+  await app.start(process.env.PORT || 3000);
   console.log("Bolt app started");
 })();

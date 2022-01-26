@@ -20,7 +20,7 @@ client.webhooks.createWebhook({
     },
   ],
   resource: "2653227806782",
-  target: "https://slack-asana-bot.herokuapp.com/webhook",
+  target: "https://slack-asana-bot.herokuapp.com/receive-webhook",
 });
 
 client.webhooks.getWebhooks({ workspace: "2653227806782" }).then((res) => {

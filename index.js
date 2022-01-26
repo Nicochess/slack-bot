@@ -2,25 +2,40 @@ require("dotenv").config();
 
 const { App, ExpressReceiver } = require("@slack/bolt");
 
-const express = require('express')
+const express = require("express");
 const receiver = new ExpressReceiver({
   signingSecret: process.env.SIGNING_SECRET,
 });
-receiver.router.use(express.json())
+receiver.router.use(express.json());
 
 const { Client } = require("asana");
 
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
+client.webhooks.createWebhook({
+  data: {
+    filters: [
+      {
+        action: "added",
+        resource_type: "task",
+      },
+    ],
+    resource: "30994714493547",
+    target: "https://slack-asana-bot.herokuapp.com/webhook",
+  },
+});
+
 const app = new App({
   token: process.env.BOT_TOKEN,
   port: process.env.PORT || 3000,
-  receiver
+  receiver,
 });
 
-receiver.router.get('/webhook', (req, res) => {
-  res.status(200).send('Olá')
-})
+receiver.router.post("/webhook", (req, res) => {
+  res
+    .status(200)
+    .send(res.header("X-Hook-Secret", req.headers["x-hook-secret"]));
+});
 
 app.message("bot", async ({ message, say }) => {
   await say(`Por que está falando de mim, <@${message.user}> ?`);

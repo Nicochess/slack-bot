@@ -19,7 +19,7 @@ client.webhooks.createWebhook({
       resource_type: "task",
     },
   ],
-  resource: "30994714493547",
+  resource: "2653227806782",
   target: "https://slack-asana-bot.herokuapp.com/webhook",
 });
 

@@ -12,20 +12,25 @@ const { Client } = require("asana");
 
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
-client.webhooks.createWebhook({
-  filters: [
+client.webhooks
+  .create(
+    "30994714493547",
+    "https://slack-asana-bot.herokuapp.com/receive-webhook",
     {
-      action: "added",
-      resource_type: "task",
-    },
-  ],
-  resource: "2653227806782",
-  target: "https://slack-asana-bot.herokuapp.com/receive-webhook",
-});
-
-client.webhooks.getWebhooks({ workspace: "2653227806782" }).then((res) => {
-  console.log(res);
-});
+      filters: [
+        {
+          action: "added",
+          resource_type: "task",
+        },
+      ],
+    }
+  )
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((error) => {
+    console.log(error.value);
+  });
 
 const app = new App({
   token: process.env.BOT_TOKEN,

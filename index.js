@@ -1,52 +1,28 @@
 require("dotenv").config();
 
-const { App, ExpressReceiver } = require("@slack/bolt");
-const express = require("express");
-const receiver = new ExpressReceiver({
-  signingSecret: process.env.SIGNING_SECRET,
-});
-receiver.router.use(express.json());
+const { App } = require("@slack/bolt");
 
 const { Client } = require("asana");
 
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
-client.webhooks
-  .create(
-    "30994714493547",
-    "https://slack-asana-bot.herokuapp.com/receive-webhook",
-    {
-      filters: [
-        {
-          action: "added",
-          resource_type: "task",
-        },
-      ],
-    }
-  )
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((error) => {
-    console.log(error.value);
-  });
-
 const app = new App({
   token: process.env.BOT_TOKEN,
+  appToken: process.env.SLACK_TOKEN,
   port: process.env.PORT || 3000,
-  receiver
-});
-
-receiver.router.post("/receive-webhook", (req, res) => {
-  console.log(req)
-  res.writeHead(200, {
-    'X-Hook-Secret' : req.headers['X-Hook-Secret']
-  })
-  res.end()
-});
-
-app.message("bot", async ({ message, say }) => {
-  await say(`Por que está falando de mim, <@${message.user}> ?`);
+  socketMode: true,
+  customRoutes: [
+    {
+      path: "/webhook",
+      method: ["POST"],
+      handler: (req, res) => {
+        res.writeHead(200, {
+          "x-hook-secret": req.headers["x-hook-secret"],
+        });
+        res.end();
+      },
+    },
+  ],
 });
 
 app.message("task doing", async ({ say }) => {
@@ -99,15 +75,6 @@ app.message("task todo", async ({ say }) => {
   } catch (error) {
     console.log(error);
   }
-});
-
-app.message("comandos", async ({ say, message }) => {
-  say(`
-    Olá, <@${message.user}> !
-    Nós podemos nos comunicar utilizando os comandos:
-    - task doing
-    - task todo
-  `);
 });
 
 (async () => {

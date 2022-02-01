@@ -28,15 +28,15 @@ client.webhooks
 
 const app = new App({
   token: process.env.BOT_TOKEN,
+  signingSecret: process.env.SIGNING_SECRET,
   port: process.env.PORT || 3000,
-  socketMode: true,
   customRoutes: [
     {
       path: '/receive-webhook',
       method: ['POST'],
       handler: (req, res) => {
         res.writeHead(200, {
-          'X-Hook-Secret': 'Secret'
+          'X-Hook-Secret': req.headers["X-Hook-Secret"]
         });
         res.end();
       },

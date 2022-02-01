@@ -10,7 +10,7 @@ const receiver = new ExpressReceiver({
 
 const app = new App({
   token: process.env.BOT_TOKEN,
-  port: process.env.SLACK_PORT || 3000,
+  port: process.env.PORT || 3000,
   receiver,
 });
 
@@ -74,6 +74,6 @@ app.message("task todo", async ({ say }) => {
 });
 
 (async () => {
-  await app.start();
+  await app.start(process.env.PORT || 3000);
   console.log("Bolt app started");
 })();

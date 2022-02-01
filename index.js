@@ -38,6 +38,7 @@ const app = new App({
 });
 
 receiver.router.post("/receive-webhook", (req, res) => {
+  console.log(req)
   res.writeHead(200, {
     'X-Hook-Secret' : req.headers['X-Hook-Secret']
   })

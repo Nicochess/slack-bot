@@ -9,8 +9,8 @@ const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 const app = new App({
   token: process.env.BOT_TOKEN,
   appToken: process.env.SLACK_TOKEN,
+  signingSecret: process.env.SIGNING_SECRET,
   port: process.env.PORT || 3000,
-  socketMode: true,
   customRoutes: [
     {
       path: "/webhook",

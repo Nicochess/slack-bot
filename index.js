@@ -1,28 +1,24 @@
 require("dotenv").config();
 
-const { App } = require("@slack/bolt");
-
 const { Client } = require("asana");
-
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
+
+const { App, ExpressReceiver } = require("@slack/bolt");
+const receiver = new ExpressReceiver({
+  signingSecret: process.env.SIGNING_SECRET,
+});
 
 const app = new App({
   token: process.env.BOT_TOKEN,
-  appToken: process.env.SLACK_TOKEN,
-  signingSecret: process.env.SIGNING_SECRET,
   port: process.env.PORT || 3000,
-  customRoutes: [
-    {
-      path: "/webhook",
-      method: ["POST"],
-      handler: (req, res) => {
-        res.writeHead(200, {
-          "x-hook-secret": req.headers["x-hook-secret"],
-        });
-        res.end();
-      },
-    },
-  ],
+  receiver,
+});
+
+receiver.router.post("/webhook", (req, res) => {
+  res.writeHead(200, {
+    "x-hook-secret": req.headers["x-hook-secret"],
+  });
+  res.end();
 });
 
 app.message("task doing", async ({ say }) => {

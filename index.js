@@ -41,7 +41,7 @@ const app = new App({
 receiver.router.post("/receive-webhook", (req, res) => {
   res
     .status(200)
-    .send(res.header("X-Hook-Secret", req.headers["x-hook-secret"]));
+    .send(res.header("X-Hook-Secret", req.headers["X-Hook-Secret"]));
 });
 
 app.message("bot", async ({ message, say }) => {

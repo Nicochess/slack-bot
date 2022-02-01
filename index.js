@@ -10,7 +10,7 @@ const receiver = new ExpressReceiver({
 
 const app = new App({
   token: process.env.BOT_TOKEN,
-  port: process.env.PORT || 3000,
+  port: process.env.SLACK_PORT || 3000,
   receiver,
 });
 

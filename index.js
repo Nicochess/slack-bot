@@ -74,6 +74,6 @@ app.message("task todo", async ({ say }) => {
 });
 
 (async () => {
-  await app.start(process.env.PORT || 3000);
+  await app.start();
   console.log("Bolt app started");
 })();

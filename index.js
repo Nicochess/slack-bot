@@ -29,7 +29,7 @@ receiver.router.post("/webhook", (req, res) => {
   client.tasks.getTask(req.body.events[0].resource.gid).then((response) => {
     app.client.chat.postMessage({
       token: process.env.BOT_TOKEN,
-      channel: "C01SKRMGTPW",
+      channel: "C02UWCUUSF5",
       text: `${response.name} \n ${response.permalink_url}`,
     });
   });

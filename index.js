@@ -5,6 +5,8 @@ const getRawBody = require("raw-body");
 const { Client } = require("asana");
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
+let lastTask = "";
+
 const { App } = require("@slack/bolt");
 
 const app = new App({
@@ -25,21 +27,25 @@ const app = new App({
           res.end();
           return;
         }
-
+        console.log("### inicio");
         const rawBody = await getRawBody(req);
         const body = JSON.parse(rawBody.toString());
 
-        client.tasks
-          .getTask(body.events[0].resource.gid, {
-            opt_fields: ["name", "gid"],
-          })
-          .then((res) => {
-            app.client.chat.postMessage({
-              token: process.env.BOT_TOKEN,
-              channel: "C031679DDD1",
-              text: `${res.name} \n https://app.asana.com/0/${body.events[0].parent.gid}/${body.events[0].resource.gid}`,
-            });
+        if (lastTask === body.events[0].resource.gid) {
+          return;
+        }
+
+        try {
+          const response = await client.tasks.getTask(body.events[0].resource.gid);
+          await app.client.chat.postMessage({
+            token: process.env.BOT_TOKEN,
+            channel: "C031679DDD1",
+            text: `${response.name} \n ${response.permalink_url}`,
           });
+          lastTask = body.events[0].resource.gid;
+        } catch(e) {
+          console.log(e);
+        }
       },
     },
   ],

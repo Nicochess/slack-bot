@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const getRawBody = require("raw-body");
+
 const { Client } = require("asana");
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
@@ -9,17 +11,34 @@ const app = new App({
   appToken: process.env.APP_TOKEN,
   token: process.env.BOT_TOKEN,
   signingSecret: process.env.SIGNING_SECRET,
-  socketMode: true,
   port: process.env.PORT || 3000,
   customRoutes: [
     {
       path: "/webhook",
       method: ["POST"],
-      handler: (req, res) => {
-        res.writeHead(200, {
-          "x-hook-secret": req.headers["x-hook-secret"],
-        });
-        res.end();
+      handler: async (req, res) => {
+        if (req.headers.hasOwnProperty("x-hook-secret")) {
+          res.writeHead(200, {
+            "x-hook-secret": req.headers["x-hook-secret"],
+          });
+          res.end();
+          return;
+        }
+
+        const rawBody = await getRawBody(req);
+        const body = JSON.parse(rawBody.toString());
+
+        client.tasks
+          .getTask(body.events[0].resource.gid, {
+            opt_fields: ["name", "gid"],
+          })
+          .then((res) => {
+            app.client.chat.postMessage({
+              token: process.env.BOT_TOKEN,
+              channel: "C031679DDD1",
+              text: `${res.name} \n https://app.asana.com/0/${body.events[0].parent.gid}/${body.events[0].resource.gid}`,
+            });
+          });
       },
     },
   ],

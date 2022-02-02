@@ -1,61 +1,47 @@
 require("dotenv").config();
 
-const getRawBody = require("raw-body");
+const express = require("express");
 
 const { Client } = require("asana");
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
-let lastTask = "";
-
-const { App } = require("@slack/bolt");
+const { App, ExpressReceiver } = require("@slack/bolt");
+const receiver = new ExpressReceiver({
+  signingSecret: process.env.SIGNING_SECRET,
+});
+receiver.router.use(express.json());
 
 const app = new App({
   appToken: process.env.APP_TOKEN,
   token: process.env.BOT_TOKEN,
-  signingSecret: process.env.SIGNING_SECRET,
-  port: process.env.PORT || 3000,
-  socketMode: true,
-  customRoutes: [
-    {
-      path: "/webhook",
-      method: ["POST"],
-      handler: async (req, res) => {
-        if (req.headers.hasOwnProperty("x-hook-secret")) {
-          res.writeHead(200, {
-            "x-hook-secret": req.headers["x-hook-secret"],
-          });
-          res.end();
-          return;
-        }
-        console.log("### inicio");
-        const rawBody = await getRawBody(req);
-        const body = JSON.parse(rawBody.toString());
-
-        if (lastTask === body.events[0].resource.gid) {
-          return;
-        }
-
-        try {
-          const response = await client.tasks.getTask(body.events[0].resource.gid);
-          await app.client.chat.postMessage({
-            token: process.env.BOT_TOKEN,
-            channel: "C031679DDD1",
-            text: `${response.name} \n ${response.permalink_url}`,
-          });
-          lastTask = body.events[0].resource.gid;
-        } catch(e) {
-          console.log(e);
-        }
-      },
-    },
-  ],
+  receiver,
 });
 
-app.message("oi", async ({ say, message }) => {
+receiver.router.post("/webhook", (req, res) => {
+  if (req.headers.hasOwnProperty("x-hook-secret")) {
+    res.writeHead(200, {
+      "x-hook-secret": req.headers["x-hook-secret"],
+    });
+    res.end();
+    return;
+  }
+
+  client.tasks.getTask(req.body.events[0].resource.gid).then((response) => {
+    app.client.chat.postMessage({
+      token: process.env.BOT_TOKEN,
+      channel: "C01SKRMGTPW",
+      text: `${response.name} \n ${response.permalink_url}`,
+    });
+  });
+
+  res.sendStatus(200);
+});
+
+app.message("oi", async ({ say }) => {
   await say("Não quero conversas");
 });
 
 (async () => {
-  await app.start();
+  await app.start(process.env.PORT || 3000);
   console.log("Bolt app started");
 })();

@@ -26,6 +26,11 @@ receiver.router.post("/webhook", (req, res) => {
     return;
   }
 
+  if (req.body.events[0].parent.resource_type !== "project") {
+    res.sendStatus(200);
+    return;
+  }
+
   client.tasks.getTask(req.body.events[0].resource.gid).then((response) => {
     app.client.chat.postMessage({
       token: process.env.BOT_TOKEN,

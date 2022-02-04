@@ -6,9 +6,7 @@ const { Client } = require("asana");
 const client = Client.create().useAccessToken(process.env.ACESS_TOKEN);
 
 const { App, ExpressReceiver } = require("@slack/bolt");
-const receiver = new ExpressReceiver({
-  signingSecret: process.env.SIGNING_SECRET,
-});
+const receiver = new ExpressReceiver({ signingSecret: process.env.SIGNING_SECRET });
 receiver.router.use(express.json());
 
 const app = new App({
@@ -17,16 +15,16 @@ const app = new App({
   receiver,
 });
 
+let lastTask = "";
+
 receiver.router.post("/webhook", (req, res) => {
   if (req.headers.hasOwnProperty("x-hook-secret")) {
-    res.writeHead(200, {
-      "x-hook-secret": req.headers["x-hook-secret"],
-    });
+    res.writeHead(200, { "x-hook-secret": req.headers["x-hook-secret"] });
     res.end();
     return;
   }
 
-  if (req.body.events[0].parent.resource_type !== "project") {
+  if (req.body.events[0].resource.gid === lastTask) {
     res.sendStatus(200);
     return;
   }
@@ -39,11 +37,9 @@ receiver.router.post("/webhook", (req, res) => {
     });
   });
 
-  res.sendStatus(200);
-});
+  lastTask = req.body.events[0].resource.gid;
 
-app.message("oi", async ({ say }) => {
-  await say("Não quero conversas");
+  res.sendStatus(200);
 });
 
 (async () => {
